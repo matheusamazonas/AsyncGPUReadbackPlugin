@@ -8,7 +8,16 @@
 #ifdef _WIN32
   #include <windows.h>
 #endif
-#include <GL/gl.h>
+
+ // https://www.khronos.org/registry/OpenGL/api/
+	// #include <GLES2/gl2.h>
+	// #include <GLES2/gl2ext.h>
+	// #include <GLES2/gl2platform.h>
+
+	#include <GLES3/gl3.h>
+	#include <GLES3/gl32.h>
+	#include <GLES3/gl3ext.h>
+	#include <GLES3/gl3platform.h>
 #endif
 
 /**
@@ -22,30 +31,30 @@ inline int getPixelSizeFromInternalFormat(int internalFormat)
     switch(internalFormat) {
 		case GL_R8: return 8;
 		case GL_R8_SNORM: return 8;
-		case GL_R16: return 16;
-		case GL_R16_SNORM: return 16;
+		// case GL_R16: return 16;
+		// case GL_R16_SNORM: return 16;
 		case GL_RG8: return 8 + 8;
 		case GL_RG8_SNORM: return 8 + 8;
-		case GL_RG16: return 16 + 16;
-		case GL_RG16_SNORM: return 16 + 16;
-		case GL_R3_G3_B2: return 3 + 3 + 2;
-		case GL_RGB4: return 4 + 4 + 4;
-		case GL_RGB5: return 5 + 5 + 5;
+		// case GL_RG16: return 16 + 16;
+		// case GL_RG16_SNORM: return 16 + 16;
+		// case GL_R3_G3_B2: return 3 + 3 + 2;
+		// case GL_RGB4: return 4 + 4 + 4;
+		// case GL_RGB5: return 5 + 5 + 5;
 		case GL_RGB8: return 8 + 8 + 8;
 		case GL_RGB8_SNORM: return 8 + 8 + 8;
-		case GL_RGB10: return 10 + 10 + 10;
-		case GL_RGB12: return 12 + 12 + 12;
-		case GL_RGB16: return 16 + 16 + 16;
-		case GL_RGB16_SNORM: return 16 + 16 + 16;
-		case GL_RGBA2: return 2 + 2 + 2 + 2;
+		// case GL_RGB10: return 10 + 10 + 10;
+		// case GL_RGB12: return 12 + 12 + 12;
+		// case GL_RGB16: return 16 + 16 + 16;
+		// case GL_RGB16_SNORM: return 16 + 16 + 16;
+		// case GL_RGBA2: return 2 + 2 + 2 + 2;
 		case GL_RGBA4: return 4 + 4 + 4 + 4;
 		case GL_RGB5_A1: return 5 + 5 + 5 + 1;
 		case GL_RGBA8: return 8 + 8 + 8 + 8;
 		case GL_RGBA8_SNORM: return 8 + 8 + 8 + 8;
 		case GL_RGB10_A2: return 10 + 10 + 10 + 2;
-		case GL_RGBA12: return 12 + 12 + 12 + 12;
-		case GL_RGBA16: return 16 + 16 + 16 + 16;
-		case GL_RGBA16_SNORM: return 16 + 16 + 16 + 16;
+		// case GL_RGBA12: return 12 + 12 + 12 + 12;
+		// case GL_RGBA16: return 16 + 16 + 16 + 16;
+		// case GL_RGBA16_SNORM: return 16 + 16 + 16 + 16;
 		case GL_SRGB8: return 8 + 8 + 8;
 		case GL_SRGB8_ALPHA8: return 8 + 8 + 8 + 8;
 		case GL_R16F: return 16;
@@ -84,7 +93,7 @@ inline int getPixelSizeFromInternalFormat(int internalFormat)
 		case GL_RGBA32UI: return 32 + 32 + 32 + 32;
 		case GL_DEPTH_COMPONENT16: return 16;
 		case GL_DEPTH_COMPONENT24: return 24;
-		case GL_DEPTH_COMPONENT32: return 32;
+		// case GL_DEPTH_COMPONENT32: return 32;
 		case GL_DEPTH_COMPONENT32F: return 32;
 		case GL_DEPTH24_STENCIL8: return 24 + 8;
 		case GL_DEPTH32F_STENCIL8: return 32 + 8;
@@ -103,8 +112,8 @@ inline int getFormatFromInternalFormat(int internalFormat)
     switch(internalFormat) {
 		case GL_R8:
 		case GL_R8_SNORM:
-		case GL_R16:
-		case GL_R16_SNORM:
+		// case GL_R16:
+		// case GL_R16_SNORM:
 		case GL_R16F:
 		case GL_R32F:
 			return GL_RED;
@@ -119,8 +128,8 @@ inline int getFormatFromInternalFormat(int internalFormat)
 		
 		case GL_RG8:
 		case GL_RG8_SNORM:
-		case GL_RG16:
-		case GL_RG16_SNORM:
+		// case GL_RG16:
+		// case GL_RG16_SNORM:
 		case GL_RG16F:
 		case GL_RG32F:
 			return GL_RG;
@@ -135,8 +144,8 @@ inline int getFormatFromInternalFormat(int internalFormat)
 
 		case GL_RGB8:
 		case GL_RGB8_SNORM:
-		case GL_RGB16:
-		case GL_RGB16_SNORM:
+		// case GL_RGB16:
+		// case GL_RGB16_SNORM:
 		case GL_RGB16F:
 		case GL_RGB32F:
 			return GL_RGB;
@@ -151,8 +160,8 @@ inline int getFormatFromInternalFormat(int internalFormat)
 
 		case GL_RGBA8:
 		case GL_RGBA8_SNORM:
-		case GL_RGBA16:
-		case GL_RGBA16_SNORM:
+		// case GL_RGBA16:
+		// case GL_RGBA16_SNORM:
 		case GL_RGBA16F:
 		case GL_RGBA32F:
 			return GL_RGBA;
@@ -203,20 +212,20 @@ inline int getTypeFromInternalFormat(int internalFormat)
 		case GL_RGBA8I:
 			return GL_BYTE;
 
-		case GL_R16:
-		case GL_RG16:
-		case GL_RGB16:
-		case GL_RGBA16:
+		// case GL_R16:
+		// case GL_RG16:
+		// case GL_RGB16:
+		// case GL_RGBA16:
 		case GL_R16UI:
 		case GL_RG16UI:
 		case GL_RGB16UI:
 		case GL_RGBA16UI:
 			return GL_UNSIGNED_SHORT;
 
-		case GL_R16_SNORM:
-		case GL_RG16_SNORM:
-		case GL_RGB16_SNORM:
-		case GL_RGBA16_SNORM:
+		// case GL_R16_SNORM:
+		// case GL_RG16_SNORM:
+		// case GL_RGB16_SNORM:
+		// case GL_RGBA16_SNORM:
 		case GL_R16I:
 		case GL_RG16I:
 		case GL_RGB16I:

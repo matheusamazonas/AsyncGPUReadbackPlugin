@@ -201,9 +201,7 @@ namespace AsyncGPUReadbackPluginNs
 		[AOT.MonoPInvokeCallbackAttribute(typeof(_callback_string_int_delegate))]
 		private static void _CPP_DebugLog(string key, int val)
 		{
-			Debug.Log("<color=cyan>[FromCPP]:" + key + ":" + val + "</color>");
+			// Debug.Log("<color=cyan>[FromCPP]:" + key + ":" + val + "</color>");
 		}
-
-
-	}
+    }
 }

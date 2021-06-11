@@ -76,3 +76,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 NativePlugin/Android/libs
 NativePlugin/Android/obj
+
+**/AsyncGPUReadbackPlugin.bundle
+**/AsyncGPUReadbackPlugin.bundle.meta

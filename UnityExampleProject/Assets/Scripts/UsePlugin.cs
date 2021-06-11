@@ -1,107 +1,85 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
-using System;
-using System.Runtime.InteropServices;
-using Unity.Collections;
-using System.IO;
 using AsyncGPUReadbackPluginNs;
+using UnityEngine.Experimental.Rendering;
 
 /// <summary>
 /// Exemple of usage inspirated from https://github.com/keijiro/AsyncCaptureTest/blob/master/Assets/AsyncCapture.cs
 /// </summary>
 public class UsePlugin : MonoBehaviour
 {
-	[SerializeField] RawImage _uiImage;
+    #region Unity editor fields
 
-	Queue<AsyncGPUReadbackPluginRequest> _requests = new Queue<AsyncGPUReadbackPluginRequest>();
+    [SerializeField] private Image _image;
+    [SerializeField] private Camera _camera;
 
-	bool _inited = false;
+    #endregion
 
-	void Start()
-	{
-		Invoke("_Init", 5f);
-	}
+    #region Fields
 
-	void _Init()
-	{
-		_inited = true;
-	}
+    private RenderTexture _renderTexture;
+    private Texture2D _texture;
+    private readonly Queue<AsyncGPUReadbackPluginRequest> _requests = new Queue<AsyncGPUReadbackPluginRequest>();
 
-	void Update()
-	{
-		if(!_inited){return;}
+    #endregion
 
-		while (_requests.Count > 0)
-		{
-			var req = _requests.Peek();
+    #region Setup
 
-			// You need to explicitly ask for an update regularly
-			req.Update();
+    private void Start()
+    {
+        _renderTexture = new RenderTexture(400, 300, 32, GraphicsFormat.R8G8B8A8_UNorm);
+        _texture = new Texture2D(400, 300, TextureFormat.RGBA32, false, true);
+        _image.sprite = Sprite.Create(_texture, new Rect(0, 0, 400, 300), Vector2.zero);
+        _camera.targetTexture = _renderTexture;
+    }
 
-			if (req.hasError)
-			{
-				Debug.LogError("GPU readback error detected.");
-				req.Dispose();
-				_requests.Dequeue();
-			}
-			else if (req.done)
-			{
-				// Get data from the request when it's done
-				byte[] buffer = req.GetRawData();
+    #endregion
 
-				// Save the image
-				Camera cam = GetComponent<Camera>();
-				SaveBitmap(buffer, cam.pixelWidth, cam.pixelHeight);
+    #region Update
 
-				// You need to explicitly Dispose data after using them
-				req.Dispose();
+    private void Update()
+    {
+        RenderTexture.active = _renderTexture;
+        RenderTexture.active = null;
+        
+        if (_requests.Count < 8)
+            _requests.Enqueue(AsyncGPUReadbackPlugin.Request(_renderTexture));
+        else
+            Debug.LogWarning("Too many requests.");
 
-				_requests.Dequeue();
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
+        while (_requests.Count > 0)
+        {
+            var req = _requests.Peek();
 
-	void OnRenderImage(RenderTexture source, RenderTexture destination)
-	{
-		if(!_inited) return;
+            // You need to explicitly ask for an update regularly
+            req.Update();
 
+            if (req.hasError)
+            {
+                Debug.LogError("GPU readback error detected.");
+                req.Dispose();
+                _requests.Dequeue();
+            }
+            else if (req.done)
+            {
+                var data = req.GetNativeRawData();
 
-		Graphics.Blit(source, destination);
+                _texture.LoadRawTextureData(data);
+                _texture.Apply(false);
 
-		if (Time.frameCount % 60 == 0)
-		{
-			if (_requests.Count < 8)
-				_requests.Enqueue(AsyncGPUReadbackPlugin.Request(source));
-			else
-				Debug.LogWarning("Too many requests.");
-		}
-	}
+                // You need to explicitly Dispose data after using them
+                req.Dispose();
 
-	void SaveBitmap(byte[] buffer, int width, int height)
-	{
+                _requests.Dequeue();
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    
+    #endregion
 
-		Debug.Log($"Write to file : {buffer.Length}");
-
-		// var tex = new Texture2D(width, height, TextureFormat.RGBAHalf, false);
-		var tex = new Texture2D(width, height, TextureFormat.ARGB32, false);
-		tex.LoadRawTextureData(buffer);
-		tex.Apply();
-
-		
-		// File.WriteAllBytes("test.png", ImageConversion.EncodeToPNG(tex));
-		
-		Texture2D texture2 = new Texture2D(width, height, TextureFormat.RGB24, false);
-		texture2.SetPixels(tex.GetPixels());
-		texture2.Apply();
-		_uiImage.texture = texture2;
-
-		
-		Destroy(tex);
-	}
 }

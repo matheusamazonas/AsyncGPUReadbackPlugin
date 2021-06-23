@@ -156,6 +156,7 @@ namespace AsyncGPUReadbackPluginNs
                 void* ptr = null;
                 int length = 0;
                 getData_mainThread(eventId, ref ptr, ref length);
+                bufferCreated = true;
                 
                 var data = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(ptr, length, Allocator.None);
                 return data;
